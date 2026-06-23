@@ -14,6 +14,7 @@
     "format": "prettier . --write",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "seed": "tsx -r dotenv/config src/scripts/seed/script.ts",
+    "nuke": "psql -d payloadblog -c \"DROP SCHEMA public CASCADE; CREATE SCHEMA public;\" && pnpm payload migrate:fresh && pnpm seed",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",

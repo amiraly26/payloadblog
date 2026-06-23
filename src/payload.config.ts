@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
 import { Users } from './collections/Users'
-import { Media } from './collections/Media'
+import { Media } from './collections/Media/config'
 import { Articles } from './collections/Articles/config'
 import { ArticleAuthors } from './collections/ArticleAuthors'
 import { env } from './lib/env'

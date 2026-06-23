@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload'
 
 import { generateContentSummaryHook } from './hooks/generate-content-summary.hook'
 import { generateSlugHook } from './hooks/generate-slug.hook'
+import { STATUS_OPTIONS } from './hooks/constants'
 
 export const Articles: CollectionConfig = {
   slug: 'articles',
@@ -67,9 +68,9 @@ export const Articles: CollectionConfig = {
     {
       name: 'status',
       type: 'select',
-      options: ['Draft', 'Published'],
       required: true,
-      defaultValue: 'Draft',
+      options: Object.values(STATUS_OPTIONS),
+      defaultValue: STATUS_OPTIONS.DRAFT,
     },
     {
       name: 'publishedAt',

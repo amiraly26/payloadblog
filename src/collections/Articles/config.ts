@@ -1,9 +1,10 @@
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
+import { revalidateTag } from 'next/cache'
 import type { CollectionConfig } from 'payload'
 
+import { CACHE_TAG_ARTICLES, STATUS_OPTIONS } from './hooks/constants'
 import { generateContentSummaryHook } from './hooks/generate-content-summary.hook'
 import { generateSlugHook } from './hooks/generate-slug.hook'
-import { STATUS_OPTIONS } from './hooks/constants'
 
 export const Articles: CollectionConfig = {
   slug: 'articles',
@@ -77,9 +78,21 @@ export const Articles: CollectionConfig = {
       type: 'date',
       required: true,
       admin: {
-        condition: (data) => data?.status === 'Published',
+        condition: (data) => data?.status === STATUS_OPTIONS.PUBLISHED,
         date: { pickerAppearance: 'dayAndTime' },
       },
     },
   ],
+  hooks: {
+    afterChange: [
+      () => {
+        revalidateTag(CACHE_TAG_ARTICLES, { expire: 0 })
+      },
+    ],
+    afterDelete: [
+      () => {
+        revalidateTag(CACHE_TAG_ARTICLES, { expire: 0 })
+      },
+    ],
+  },
 }

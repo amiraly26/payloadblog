@@ -1,48 +1,54 @@
+import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 import Image from 'next/image'
+import { notFound } from 'next/navigation'
+
+import { getPublishedArticleBySlug } from '@/collections/Articles/fetchers'
+import { RichText } from '@/lib/payload/helpers/components/rich-text'
+import { relationIsObject } from '@/lib/payload/helpers/relation-is-object'
 
 import { ArticleMetadata } from '../_components/article-metadata'
 
-const publishedAt = new Date('2025-11-13T20:45:00')
+type BlogPostPageProps = {
+  params: Promise<{ slug: string }>
+}
 
-export default async function BlogPostPage() {
+export default async function BlogPostPage({ params }: BlogPostPageProps) {
+  const { slug } = await params
+  const article = await getPublishedArticleBySlug(slug)
+
+  if (!article) notFound()
+  if (!relationIsObject(article.coverImage)) notFound()
+  if (!relationIsObject(article.author) || !relationIsObject(article.author.avatar)) notFound()
+
   return (
-    <div className="prose prose-invert lg:prose-lg">
-      <h1>How to Create a Blog Tutorial No One Asked For</h1>
+    <article className="prose prose-invert lg:prose-lg">
+      <h1>{article.title}</h1>
 
       <ArticleMetadata
         intent="post"
         data={{
           author: {
-            avatar: 'https://via.assets.so/img.jpg?w=40&h=40&bg=6b7280&f=png',
-            name: 'John Doe',
-            role: 'Staff Writer',
+            avatar: article.author.avatar,
+            name: article.author.name,
+            role: article.author.role,
           },
-          publishedAt,
-          readTimeInMins: 42,
+          publishedAt: article.publishedAt ? new Date(article.publishedAt) : new Date(),
+          readTimeInMins: article.readTimeInMins ?? 0,
         }}
         className="not-prose"
       />
 
       <Image
-        src="https://via.assets.so/img.jpg?w=600&h=300&bg=6b7280&f=png"
-        alt="Cover image"
-        width={600}
-        height={300}
-        className="w-full rounded-md object-cover object-center"
+        src={article.coverImage.url ?? ''}
+        alt={article.coverImage.alt || `Cover image for ${article.title}`}
+        width={article.coverImage.width ?? 600}
+        height={article.coverImage.height ?? 300}
+        className="aspect-[2/1] w-full rounded-md object-cover object-center"
+        placeholder={article.coverImage.blurDataUrl ? 'blur' : 'empty'}
+        blurDataURL={article.coverImage.blurDataUrl || undefined}
       />
 
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae tempore omnis maiores.
-        Illo cum natus magni dicta, officia quibusdam velit enim fugit blanditiis, eaque aut minima
-        ipsam aliquam similique qui quis corrupti, atque facere alias neque laudantium deleniti
-        sunt!
-      </p>
-      <p>
-        Hic culpa ratione illo obcaecati ab numquam nam dolorem eaque perferendis alias facilis
-        harum enim rerum tempora deserunt iure quod nemo corporis. Exercitationem fugiat soluta
-        ipsam expedita cupiditate. Nihil qui, similique quas, quidem ea officia error eaque
-        architecto nulla labore asperiores.
-      </p>
-    </div>
+      <RichText lexicalData={article.content as unknown as SerializedEditorState} />
+    </article>
   )
 }

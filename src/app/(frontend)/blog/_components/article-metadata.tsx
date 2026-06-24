@@ -5,7 +5,9 @@ type ArticleMetadataProps = {
   className?: string
   data: {
     author: {
-      avatar: string
+      avatar: {
+        url?: string | null
+      }
       name: string
       role: string
     }
@@ -21,7 +23,7 @@ export function ArticleMetadata({ data, intent, className }: ArticleMetadataProp
     <div className={`mt-4 flex items-center justify-between ${className ?? ''}`}>
       <div className={`flex min-w-0 items-center ${intent === 'card' ? 'gap-2' : 'gap-3'}`}>
         <Image
-          src={author.avatar}
+          src={author.avatar.url ?? ''}
           alt={`${author.name}'s avatar`}
           width={40}
           height={40}
